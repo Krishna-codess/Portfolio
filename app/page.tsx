@@ -954,7 +954,7 @@ export default function Home() {
             alignItems: "center",
           }}
         >
-          <div className="logo">Krishna.fx</div>
+          <div className="logo">krishnaaa.fx</div>
 
           <nav className="nav-links">
             <a href="#work">WORK</a>
@@ -1151,7 +1151,7 @@ export default function Home() {
             </p>
 
             <h2>
-              KRISHNA.
+              KRISHNAAA.
               <br />
               FX©
             </h2>

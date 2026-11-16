@@ -5,7 +5,7 @@ import { SmoothScroll } from "@/components/smooth-scroll";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Krishna.fx - Video Editor & Motion Designer",
+  title: "krishnaaa.fx - Video Editor & Motion Designer",
   description:
     "Video editor specializing in short-form content, SaaS animations, talking-head videos and cinematic colour grading. Premiere Pro, After Effects, DaVinci Resolve, Figma & Photoshop.",
   generator: "v0.app",
