@@ -283,6 +283,34 @@ function SocialProof() {
   // ── Testimonials auto-rotate ──────────────────────────────────────────────
   const [activeTestimonial, setActiveTestimonial] = useState(0)
   const [isHovered, setIsHovered] = useState(false)
+  const touchStartX = useRef<number | null>(null)
+  const touchEndX = useRef<number | null>(null)
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX
+    setIsHovered(true)
+  }
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.touches[0].clientX
+  }
+
+  const handleTouchEnd = () => {
+    setIsHovered(false)
+    if (touchStartX.current === null || touchEndX.current === null) return
+    const diff = touchStartX.current - touchEndX.current
+    if (diff > 40) {
+      // Swipe left -> next
+      setActiveTestimonial((p) => (p + 1) % testimonials.length)
+    } else if (diff < -40) {
+      // Swipe right -> prev
+      setActiveTestimonial(
+        (p) => (p - 1 + testimonials.length) % testimonials.length,
+      )
+    }
+    touchStartX.current = null
+    touchEndX.current = null
+  }
 
   useEffect(() => {
     if (isHovered) return
@@ -374,6 +402,9 @@ function SocialProof() {
           id="testimonials"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
         >
           <button
             type="button"
@@ -697,14 +728,16 @@ function ReelCard({ item }: { item: PortfolioItem }) {
     }
   }
 
-  const handleFullscreen = (e: React.MouseEvent) => {
+  const handleFullscreen = (e: React.MouseEvent | React.TouchEvent) => {
     e.stopPropagation()
-    const video = videoRef.current
+    const video = videoRef.current as any
     if (!video) return
     if (document.fullscreenElement) {
       document.exitFullscreen().catch(() => { })
-    } else {
-      video.requestFullscreen?.()
+    } else if (video.requestFullscreen) {
+      video.requestFullscreen().catch(() => { })
+    } else if (video.webkitEnterFullscreen) {
+      video.webkitEnterFullscreen()
     }
   }
 
@@ -746,7 +779,7 @@ function ReelCard({ item }: { item: PortfolioItem }) {
           muted
           loop
           playsInline
-          preload="auto"
+          preload="metadata"
           onPlay={() => setIsPlaying(true)}
           onPause={() => setIsPlaying(false)}
         />
@@ -805,6 +838,7 @@ function ReelCard({ item }: { item: PortfolioItem }) {
 export default function Home() {
   const [showScrollTop, setShowScrollTop] = useState(false)
   const [starburstVisible, setStarburstVisible] = useState(true)
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
 
   useEffect(() => {
     function updateClock() {
@@ -817,12 +851,13 @@ export default function Home() {
         ":" +
         now.getSeconds().toString().padStart(2, "0")
 
-      const statusElement = document.querySelector(".system-status")
+      const statusElements = document.querySelectorAll(
+        ".system-status, .mobile-system-status",
+      )
 
-      if (statusElement) {
-        statusElement.textContent = `RENDER: ${timeStr} | GPU: ${Math.floor(Math.random() * 20) + 40
-          }%`
-      }
+      statusElements.forEach((el) => {
+        el.textContent = `RENDER: ${timeStr} | GPU: ${Math.floor(Math.random() * 20) + 40}%`
+      })
     }
 
     updateClock()
@@ -946,21 +981,34 @@ export default function Home() {
       </div>
 
       <header>
-        <div
-          className="container"
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
+        <div className="container header-inner">
           <div className="logo">krishnaaa.fx</div>
 
-          <nav className="nav-links">
-            <a href="#work">WORK</a>
-            <a href="#case-studies">TESTIMONIALS</a>
-            <a href="#tools">TOOLKIT</a>
-            <a href="#contact">CONTACT</a>
+          <button
+            type="button"
+            className="mobile-nav-toggle"
+            aria-label={mobileNavOpen ? "Close navigation menu" : "Open navigation menu"}
+            onClick={() => setMobileNavOpen(!mobileNavOpen)}
+          >
+            <span>{mobileNavOpen ? "[ ✕ CLOSE ]" : "[ ☰ MENU ]"}</span>
+          </button>
+
+          <nav className={`nav-links ${mobileNavOpen ? "is-open" : ""}`}>
+            <a href="#work" onClick={() => setMobileNavOpen(false)}>
+              WORK
+            </a>
+            <a href="#case-studies" onClick={() => setMobileNavOpen(false)}>
+              TESTIMONIALS
+            </a>
+            <a href="#tools" onClick={() => setMobileNavOpen(false)}>
+              TOOLKIT
+            </a>
+            <a href="#contact" onClick={() => setMobileNavOpen(false)}>
+              CONTACT
+            </a>
+            <div className="mobile-system-status">
+              RENDER: 00:00:00 | GPU: 42%
+            </div>
           </nav>
 
           <div className="system-status">
@@ -1023,33 +1071,15 @@ export default function Home() {
 
         {/* WORK / EDIT SUITE */}
         <section id="work">
-          <div id="services" />
           <h2 className="section-title">Edit Suite</h2>
 
-          <div
-            className="categories-wrapper"
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "80px",
-              marginBottom: "100px",
-            }}
-          >
+          <div className="categories-wrapper">
             {categories.map((category) => (
               <div
                 key={category.id}
                 className="category-section animate-on-scroll"
               >
-                <h3
-                  className="category-title"
-                  style={{
-                    fontFamily: "Syne, sans-serif",
-                    fontSize: "2rem",
-                    marginBottom: "30px",
-                    textTransform: "uppercase",
-                    color: "var(--accent-retro)",
-                  }}
-                >
+                <h3 className="category-title">
                   {category.title}
                 </h3>
 
