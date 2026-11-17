@@ -1533,29 +1533,9 @@ footer {
     font-size: 0.92rem;
   }
 
-  /* Starburst lightweight background for mobile */
+  /* Hide starburst graphic on mobile so hero has clean, pitch-black background with maximum contrast */
   .hero-visual {
-    position: absolute;
-    top: 140px;
-    right: -100px;
-    transform: none;
-    opacity: 0.14;
-    pointer-events: none;
-    overflow: hidden;
-  }
-
-  .hero-visual--hidden {
-    display: none;
-  }
-
-  .hero-starburst-wrapper {
-    width: 320px;
-    height: 320px;
-  }
-
-  .hero-starburst {
-    filter: blur(1px);
-    animation: hero-starburst-spin 45s linear infinite;
+    display: none !important;
   }
 
   /* Stats Bar: compact 2x2 grid */
